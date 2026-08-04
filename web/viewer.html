@@ -1234,18 +1234,34 @@ See https://github.com/adobe-type-tools/cmap-resources
     <!-- Populated dynamically via JavaScript -->
 </div>
 
-<script>
-    // Set dynamic user data (e.g., from user session, email, IP)
-    const currentUser = "user@example.com • ID: 89421";
+<!-- Watermark Container -->
+<div id="pdf-watermark-overlay"></div>
 
-    const container = document.getElementById("watermark-layer");
-    // Create repeated watermarks across the screen
-    for (let i = 0; i < 12; i++) {
-        const textSpan = document.createElement("span");
-        textSpan.className = "watermark-text";
-        textSpan.innerText = currentUser;
-        container.appendChild(textSpan);
+<script>
+  // Function to build repeat watermarks
+  function createWatermarks() {
+    const watermarkLayer = document.getElementById('pdf-watermark-overlay');
+    if (!watermarkLayer) return;
+
+    // Change this text to whatever user metadata you want to display
+    const watermarkText = "CONFIDENTIAL • DO NOT SHARE";
+
+    watermarkLayer.innerHTML = ''; // Clear existing
+    for (let i = 0; i < 16; i++) {
+      const span = document.createElement('span');
+      span.className = 'watermark-item';
+      span.innerText = watermarkText;
+      watermarkLayer.appendChild(span);
     }
+  }
+
+  // Prevent Right Click Context Menu
+  document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+  }, false);
+
+  // Run watermark generator on load
+  document.addEventListener('DOMContentLoaded', createWatermarks);
 </script>
   </body>
 </html>
