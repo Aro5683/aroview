@@ -1230,5 +1230,22 @@ See https://github.com/adobe-type-tools/cmap-resources
     </div>
     <!-- outerContainer -->
     <div id="printContainer"></div>
+      <div id="watermark-layer">
+    <!-- Populated dynamically via JavaScript -->
+</div>
+
+<script>
+    // Set dynamic user data (e.g., from user session, email, IP)
+    const currentUser = "user@example.com • ID: 89421";
+
+    const container = document.getElementById("watermark-layer");
+    // Create repeated watermarks across the screen
+    for (let i = 0; i < 12; i++) {
+        const textSpan = document.createElement("span");
+        textSpan.className = "watermark-text";
+        textSpan.innerText = currentUser;
+        container.appendChild(textSpan);
+    }
+</script>
   </body>
 </html>
