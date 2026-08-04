@@ -1263,12 +1263,21 @@ See https://github.com/adobe-type-tools/cmap-resources
   // Run watermark generator on load
   document.addEventListener('DOMContentLoaded', createWatermarks);
 </script>
-      <script>
-  document.addEventListener('DOMContentLoaded', function () {
+    <script>
+  // Continuously monitor and immediately destroy #toolbarViewerRight if it appears
+  const observer = new MutationObserver(function (mutations, obs) {
     const rightToolbar = document.getElementById('toolbarViewerRight');
     if (rightToolbar) {
-      rightToolbar.remove(); // Removes the element entirely from the HTML DOM
+      rightToolbar.style.setProperty('display', 'none', 'important');
+      rightToolbar.remove(); // Removes it completely from the page structure
+      obs.disconnect(); // Stop watching once destroyed
     }
+  });
+
+  // Start observing the whole HTML document
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
   });
 </script>
   </body>
