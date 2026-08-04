@@ -13,7 +13,12 @@
  * limitations under the License.
  */
 
-
+/* Permanently hide and disable the right toolbar section */
+#toolbarViewerRight {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
 
 .messageBar{
   --closing-button-icon:url(images/messageBar_closingButton.svg);
