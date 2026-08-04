@@ -8253,3 +8253,20 @@ button#viewsManagerToggleButton {
     opacity: 0 !important;
     pointer-events: none !important;
 }
+
+
+/* Nuclear CSS for viewsManagerToggleButton and sidebars */
+#viewsManagerToggleButton,
+button#viewsManagerToggleButton,
+button[id*="viewsManager"],
+button[id*="sidebarToggle"],
+#toolbarViewerRight {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
