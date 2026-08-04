@@ -1331,5 +1331,158 @@ See https://github.com/adobe-type-tools/cmap-resources
     <span id="opfs-download-percent" style="font-size: 14px; font-weight: bold; color: #2563eb;">0%</span>
   </div>
 </div>
+
+      <script>
+  // =========================================================
+  // 1. STORAGE QUOTA MANAGER
+  // =========================================================
+  async function updateStorageQuota() {
+    if (navigator.storage && navigator.storage.estimate) {
+      try {
+        const { quota, usage } = await navigator.storage.estimate();
+        const usageMB = (usage / (1024 * 1024)).toFixed(1);
+        const quotaGB = (quota / (1024 * 1024 * 1024)).toFixed(1);
+        
+        const storageText = document.getElementById('storage-text');
+        const storageBar = document.getElementById('storage-bar');
+
+        if (storageText) storageText.innerText = `${usageMB} MB / ${quotaGB} GB`;
+        if (storageBar) {
+          const percent = Math.min(((usage / quota) * 100), 100).toFixed(1);
+          storageBar.style.width = `${percent}%`;
+        }
+      } catch (e) {
+        console.warn("Quota estimate unavailable:", e);
+      }
+    }
+  }
+
+  // Convert raw or Drive URLs to direct download links if necessary
+  function getDirectUrl(url) {
+    if (!url) return '';
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) {
+      return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+    }
+    return url;
+  }
+
+  function getOpfsFileName(url) {
+    let hash = 0;
+    for (let i = 0; i < url.length; i++) {
+      hash = ((hash << 5) - hash) + url.charCodeAt(i);
+      hash |= 0;
+    }
+    return `pdf_${Math.abs(hash)}.pdf`;
+  }
+
+  // =========================================================
+  // 2. OPFS DOWNLOAD & CACHE ENGINE
+  // =========================================================
+  async function getPdfFromOpfsOrFetch(originalUrl) {
+    const modal = document.getElementById('opfs-progress-modal');
+    const progressBar = document.getElementById('opfs-download-bar');
+    const percentText = document.getElementById('opfs-download-percent');
+    const statusText = document.getElementById('opfs-download-status');
+
+    const fileName = getOpfsFileName(originalUrl);
+    const root = await navigator.storage.getDirectory();
+
+    // A. Check OPFS Cache First
+    try {
+      const fileHandle = await root.getFileHandle(fileName);
+      const cachedFile = await fileHandle.getFile();
+      if (cachedFile.size > 0) {
+        console.log("PDF found in OPFS cache! Serving locally...");
+        updateStorageQuota();
+        return URL.createObjectURL(cachedFile);
+      }
+    } catch (e) {
+      // File not cached yet, proceed to download
+    }
+
+    // B. Show UI Modal
+    if (modal) modal.style.display = 'flex';
+    if (statusText) statusText.innerText = "Downloading to OPFS...";
+
+    const downloadUrl = getDirectUrl(originalUrl);
+
+    try {
+      const response = await fetch(downloadUrl);
+      if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+
+      const contentLength = response.headers.get('content-length');
+      const totalBytes = contentLength ? parseInt(contentLength, 10) : 0;
+
+      const reader = response.body.getReader();
+      let receivedBytes = 0;
+      let chunks = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        chunks.push(value);
+        receivedBytes += value.length;
+
+        if (totalBytes > 0 && progressBar && percentText) {
+          const percent = Math.round((receivedBytes / totalBytes) * 100);
+          progressBar.style.width = percent + '%';
+          percentText.innerText = percent + '%';
+          if (statusText) {
+            statusText.innerText = `${(receivedBytes / (1024 * 1024)).toFixed(1)} MB / ${(totalBytes / (1024 * 1024)).toFixed(1)} MB`;
+          }
+        } else if (statusText) {
+          statusText.innerText = `${(receivedBytes / (1024 * 1024)).toFixed(1)} MB downloaded...`;
+        }
+      }
+
+      if (statusText) statusText.innerText = "Saving securely into OPFS...";
+      const blob = new Blob(chunks, { type: 'application/pdf' });
+
+      // Save into OPFS
+      const fileHandle = await root.getFileHandle(fileName, { create: true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+
+      if (modal) modal.style.display = 'none';
+      updateStorageQuota();
+
+      return URL.createObjectURL(blob);
+
+    } catch (err) {
+      console.warn("OPFS stream failed, falling back to direct URL:", err);
+      if (modal) modal.style.display = 'none';
+      return originalUrl; // Fallback so viewer still displays document
+    }
+  }
+
+  // =========================================================
+  // 3. HOOK INTO PDF.JS INITIALIZATION
+  // =========================================================
+  document.addEventListener('webviewerloaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pdfFileUrl = urlParams.get('file');
+
+    if (pdfFileUrl) {
+      // Temporarily override default viewer startup to force OPFS load
+      const originalOpen = window.PDFViewerApplication.open;
+
+      window.PDFViewerApplication.open = async function (params) {
+        // If it's already a local blob URL created by OPFS, load standard way
+        if (typeof params === 'string' && params.startsWith('blob:')) {
+          return originalOpen.apply(this, arguments);
+        }
+
+        // Fetch through OPFS Engine first
+        const localBlobUrl = await getPdfFromOpfsOrFetch(pdfFileUrl);
+        return originalOpen.call(this, localBlobUrl);
+      };
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', updateStorageQuota);
+</script>
   </body>
 </html>
