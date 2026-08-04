@@ -13,47 +13,6 @@
  * limitations under the License.
  */
 
-/* Watermark Overlay across the PDF Viewer */
-#watermark-layer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none; /* IMPORTANT: Allows scrolling & clicking through the overlay */
-    z-index: 99999;
-    display: flex;
-    flex-wrap: wrap;
-    align-content: space-around;
-    justify-content: space-around;
-    overflow: hidden;
-    opacity: 0.18; /* Subtle enough to read PDF, visible enough in screenshots */
-    user-select: none;
-}
-
-.watermark-text {
-    transform: rotate(-30deg);
-    font-size: 24px;
-    font-weight: bold;
-    color: #000000;
-    margin: 40px;
-    white-space: nowrap;
-}
-/* Hide Download, Print, and Open File buttons in PDF.js toolbar */
-#download, 
-#print, 
-#secondaryDownload, 
-#secondaryPrint, 
-#openFile {
-    display: none !important;
-}
-/* Disable selecting text in the viewer */
-#viewerContainer {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
 
 
 .messageBar{
@@ -8203,3 +8162,79 @@ dialog :link{
     display:none;
   }
 }
+/* =========================================================
+   CUSTOM OVERRIDES: HIDE DOWNLOAD, PRINT & EDIT CONTROLS
+   ========================================================= */
+#download, 
+#print, 
+#secondaryDownload, 
+#secondaryPrint, 
+#openFile,
+#editorFreeText,
+#editorInk,
+#editorStamp {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Disable text selection inside the PDF reader layer */
+.textLayer, #viewerContainer {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+}
+
+/* Blank out document when trying to print (Ctrl + P) */
+@media print {
+    #outerContainer, #printContainer {
+        display: none !important;
+    }
+    body::after {
+        content: "Printing is disabled for this document.";
+        font-size: 24px;
+        text-align: center;
+        margin-top: 100px;
+        display: block;
+    }
+}
+
+/* =========================================================
+   CUSTOM OVERRIDES: HIDE DOWNLOAD, PRINT & EDIT CONTROLS
+   ========================================================= */
+#download, 
+#print, 
+#secondaryDownload, 
+#secondaryPrint, 
+#openFile,
+#editorFreeText,
+#editorInk,
+#editorStamp {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Disable text selection inside the PDF reader layer */
+.textLayer, #viewerContainer {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+}
+
+/* Blank out document when trying to print (Ctrl + P) */
+@media print {
+    #outerContainer, #printContainer {
+        display: none !important;
+    }
+    body::after {
+        content: "Printing is disabled for this document.";
+        font-size: 24px;
+        text-align: center;
+        margin-top: 100px;
+        display: block;
+    }
+}
+
