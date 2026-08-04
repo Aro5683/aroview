@@ -21169,3 +21169,47 @@ page.render(renderContext).promise.then(function() {
     ctx.fillText("LICENSED TO: aro@example.com", 0, 0);
     ctx.restore();
 });
+
+
+<script>
+  (function () {
+    // Inject high-priority global stylesheet directly into document head
+    const style = document.createElement('style');
+    style.textContent = `
+      #viewsManagerToggleButton,
+      [id*="viewsManager"],
+      #toolbarViewerRight {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Deep Shadow DOM Walker
+    function hideShadowElements(root) {
+      if (!root) return;
+
+      // Target element
+      const target = root.querySelector('#viewsManagerToggleButton');
+      if (target) {
+        target.style.setProperty('display', 'none', 'important');
+        target.remove();
+      }
+
+      // Check all child nodes for Shadow Roots
+      const allNodes = root.querySelectorAll('*');
+      allNodes.forEach(node => {
+        if (node.shadowRoot) {
+          hideShadowElements(node.shadowRoot);
+        }
+      });
+    }
+
+    // Run continuously to catch delayed renders
+    setInterval(() => {
+      hideShadowElements(document);
+    }, 100);
+  })();
+</script>
