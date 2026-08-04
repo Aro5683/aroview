@@ -21152,3 +21152,20 @@ if (document.readyState === "interactive" || document.readyState === "complete")
 export { PDFViewerApplication, AppConstants as PDFViewerApplicationConstants, AppOptions as PDFViewerApplicationOptions };
 
 //# sourceMappingURL=viewer.mjs.map
+
+// Inside PDF.js page rendering loop:
+page.render(renderContext).promise.then(function() {
+    const canvas = renderContext.canvasContext.canvas;
+    const ctx = canvas.getContext('2d');
+
+    ctx.save();
+    ctx.font = '30px Arial';
+    ctx.fillStyle = 'rgba(200, 0, 0, 0.2)'; // Semi-transparent Red
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(-Math.PI / 4); // 45 degree angle
+    ctx.textAlign = 'center';
+    
+    // Draw user info directly into canvas pixel data
+    ctx.fillText("LICENSED TO: aro@example.com", 0, 0);
+    ctx.restore();
+});
