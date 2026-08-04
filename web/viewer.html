@@ -1264,24 +1264,47 @@ See https://github.com/adobe-type-tools/cmap-resources
   document.addEventListener('DOMContentLoaded', createWatermarks);
 </script>
 <script>
-  // Monitor the DOM and automatically destroy elements as soon as they render
-  const elementsToDestroy = ['toolbarViewerRight', 'viewsManagerToggleButton'];
+  (function() {
+    // List of element IDs to hide/remove permanently
+    const targetIDs = [
+      'toolbarViewerRight', 
+      'viewsManagerToggleButton',
+      'sidebarToggleButton' // Backup ID used in older/newer PDF.js variants
+    ];
 
-  const observer = new MutationObserver(function (mutations, obs) {
-    elementsToDestroy.forEach(function (id) {
-      const el = document.getElementById(id);
-      if (el) {
-        el.style.setProperty('display', 'none', 'important');
-        el.remove(); // Nuke it from the HTML structure
-      }
+    function nukeElements() {
+      targetIDs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.style.setProperty('display', 'none', 'important');
+          el.style.setProperty('visibility', 'hidden', 'important');
+          el.style.setProperty('pointer-events', 'none', 'important');
+          // Hide its parent container if it's a wrapper item
+          if (el.parentElement && el.parentElement.classList.contains('toolbarButtonWithContainer')) {
+            el.parentElement.style.setProperty('display', 'none', 'important');
+          }
+          el.remove(); // Nuke from DOM
+        }
+      });
+    }
+
+    // 1. Run immediately
+    nukeElements();
+
+    // 2. Continuous Observer (doesn't disconnect, keeping it nuked dynamically)
+    const observer = new MutationObserver(function () {
+      nukeElements();
     });
-  });
 
-  // Start observing
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true
-  });
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+
+    // 3. Fallback when PDF.js fully loads
+    document.addEventListener('webviewerloaded', nukeElements);
+    window.addEventListener('load', nukeElements);
+  })();
 </script>
   </body>
 </html>
