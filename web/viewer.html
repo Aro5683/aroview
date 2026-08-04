@@ -1263,5 +1263,13 @@ See https://github.com/adobe-type-tools/cmap-resources
   // Run watermark generator on load
   document.addEventListener('DOMContentLoaded', createWatermarks);
 </script>
+      <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const rightToolbar = document.getElementById('toolbarViewerRight');
+    if (rightToolbar) {
+      rightToolbar.remove(); // Removes the element entirely from the HTML DOM
+    }
+  });
+</script>
   </body>
 </html>
