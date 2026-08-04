@@ -8244,3 +8244,12 @@ dialog :link{
     }
 }
 
+/* Hide both the right toolbar and sidebar toggle button */
+#toolbarViewerRight,
+#viewsManagerToggleButton,
+button#viewsManagerToggleButton {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
