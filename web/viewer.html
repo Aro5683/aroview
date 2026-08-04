@@ -1306,5 +1306,30 @@ See https://github.com/adobe-type-tools/cmap-resources
     window.addEventListener('load', nukeElements);
   })();
 </script>
+
+      <!-- Storage Quota Widget (Displays Used vs Total Storage) -->
+<div id="storage-quota-card" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: #ffffff; padding: 12px 16px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-family: sans-serif; min-width: 200px;">
+  <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; margin-bottom: 6px; color: #333;">
+    <span>OPFS Storage</span>
+    <span id="storage-text">0 MB / 0 MB</span>
+  </div>
+  <div style="width: 100%; background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
+    <div id="storage-bar" style="width: 0%; height: 100%; background: #2563eb; transition: width 0.3s ease;"></div>
+  </div>
+</div>
+
+<!-- Download Progress Modal -->
+<div id="opfs-progress-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999999; align-items: center; justify-content: center; font-family: sans-serif;">
+  <div style="background: white; padding: 24px; border-radius: 12px; text-align: center; width: 300px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+    <h3 style="margin: 0 0 10px; font-size: 16px; color: #1e293b;">Downloading PDF to OPFS</h3>
+    <p id="opfs-download-status" style="font-size: 12px; color: #64748b; margin: 0 0 12px;">Starting download...</p>
+    
+    <div style="width: 100%; background: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 8px;">
+      <div id="opfs-download-bar" style="width: 0%; height: 100%; background: #2563eb; transition: width 0.1s ease;"></div>
+    </div>
+    
+    <span id="opfs-download-percent" style="font-size: 14px; font-weight: bold; color: #2563eb;">0%</span>
+  </div>
+</div>
   </body>
 </html>
